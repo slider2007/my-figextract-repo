@@ -1,10 +1,15 @@
 const express = require('express');
 const path = require('path');
+const figma = require('./figmaClient');
 
 const app = express();
 const PORT = process.env.PORT || 3017;
 const HOST = process.env.HOST || '127.0.0.1';
 const MAX_IDS_PER_REQUEST = 100;
+
+// Result of the startup Professional-plan verification (set in start()).
+let isProfessionalPlan = null;
+let planCheckedAt = null;
 
 app.disable('x-powered-by');
 app.use(express.json({ limit: '1mb' }));
@@ -27,25 +32,11 @@ function getFileKey(input) {
   return null;
 }
 
-async function figmaRequest(pathname, token) {
-  const res = await fetch(`https://api.figma.com/v1${pathname}`, {
-    headers: {
-      'X-Figma-Token': token
-    }
+async function figmaRequestWithToken(pathname, token) {
+  const res = await figma.figmaFetch(`https://api.figma.com/v1${pathname}`, {
+    headers: { 'X-Figma-Token': token }
   });
-
-  if (!res.ok) {
-    let details = `Figma API error ${res.status}`;
-    try {
-      const data = await res.json();
-      if (data && data.message) details = data.message;
-    } catch (_) {}
-    const err = new Error(details);
-    err.status = res.status;
-    throw err;
-  }
-
-  return res.json();
+  return res.json;
 }
 
 function collectNodes(node, acc = [], pageName = '') {
@@ -94,7 +85,7 @@ app.post('/api/extract', async (req, res) => {
   }
 
   try {
-    const fileData = await figmaRequest(`/files/${fileKey}`, token);
+    const fileData = await figmaRequestWithToken(`/files/${fileKey}`, token);
     const nodes = collectNodes(fileData.document, []);
     const chunks = [];
 
@@ -107,7 +98,7 @@ app.post('/api/extract', async (req, res) => {
     for (const chunk of chunks) {
       const ids = chunk.map(item => item.id).join(',');
       const query = `/images/${fileKey}?ids=${encodeURIComponent(ids)}&format=${encodeURIComponent(format)}&scale=${encodeURIComponent(scale)}`;
-      const imageData = await figmaRequest(query, token);
+      const imageData = await figmaRequestWithToken(query, token);
       const images = imageData.images || {};
       for (const item of chunk) {
         if (images[item.id]) imageMap.set(item.id, images[item.id]);
@@ -134,6 +125,80 @@ app.post('/api/extract', async (req, res) => {
   }
 });
 
-app.listen(PORT, HOST, () => {
-  console.log(`FigExtract listening on http://${HOST}:${PORT}`);
+/**
+ * GET /figma/metadata — metadata-first fetch + prune pipeline.
+ *
+ * Query params:
+ *   fileKey    - optional file key; falls back to FIGMA_FILE_KEY.
+ *   nodeIds    - optional comma-separated node ids. When present, fetches just
+ *                those nodes; otherwise fetches top-level file metadata (depth=1).
+ *   keepImages - optional "true" to retain image fills during pruning.
+ *
+ * Responds with the pruned document plus { bytesBefore, bytesAfter, queueStatus }.
+ */
+app.get('/figma/metadata', async (req, res) => {
+  const fileKey = req.query.fileKey || process.env.FIGMA_FILE_KEY;
+  if (!fileKey) {
+    return res.status(400).json({ error: 'fileKey query param or FIGMA_FILE_KEY required' });
+  }
+  const keepImages = req.query.keepImages === 'true';
+  const nodeIdsParam = typeof req.query.nodeIds === 'string' ? req.query.nodeIds : '';
+
+  try {
+    let target;
+    if (nodeIdsParam) {
+      const nodeIds = nodeIdsParam.split(',').map((s) => s.trim()).filter(Boolean);
+      const raw = await figma.fetchNodeMetadata(fileKey, nodeIds);
+      target = raw.nodes || raw;
+    } else {
+      const raw = await figma.fetchFileMetadata(fileKey);
+      target = raw.document || raw;
+    }
+
+    const { document, bytesBefore, bytesAfter } = figma.pruneNodes(target, { keepImages });
+    res.json({ document, bytesBefore, bytesAfter, queueStatus: figma.queue.getStatus() });
+  } catch (error) {
+    res.status(error.status || 500).json({ error: error.message || 'Unexpected server error' });
+  }
 });
+
+/**
+ * GET /figma/queue-status — current FigmaQueue utilization snapshot.
+ */
+app.get('/figma/queue-status', (_req, res) => {
+  res.json(figma.queue.getStatus());
+});
+
+/**
+ * GET /figma/plan-status — result of the startup Professional-plan check.
+ */
+app.get('/figma/plan-status', (_req, res) => {
+  res.json({
+    isProfessionalPlan,
+    teamId: process.env.FIGMA_TEAM_ID || null,
+    checkedAt: planCheckedAt,
+  });
+});
+
+/**
+ * Verify the Figma team plan, then start the HTTP server. Plan verification
+ * runs before listening so /figma/plan-status reflects a real result.
+ * @returns {Promise<void>}
+ */
+async function start() {
+  try {
+    isProfessionalPlan = await figma.verifyProPlan();
+  } catch (error) {
+    console.error(`[start] plan verification error: ${error.message}`);
+    isProfessionalPlan = false;
+  }
+  planCheckedAt = new Date().toISOString();
+
+  app.listen(PORT, HOST, () => {
+    console.log(`FigExtract listening on http://${HOST}:${PORT}`);
+  });
+}
+
+start();
+
+module.exports = app;

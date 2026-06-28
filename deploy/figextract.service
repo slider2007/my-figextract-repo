@@ -1,0 +1,23 @@
+[Unit]
+Description=FigExtract - Figma Image Extractor
+After=network.target
+
+[Service]
+Type=simple
+User=figextract
+Group=figextract
+WorkingDirectory=/opt/figextract/app
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=3017
+ExecStart=/usr/bin/node /opt/figextract/app/server.js
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/figextract
+
+[Install]
+WantedBy=multi-user.target

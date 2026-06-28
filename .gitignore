@@ -1,0 +1,31 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+*.swp
+
+# Logs and temp files
+*.log
+*.tmp
+/tmp/
+/logs/
+
+# Secrets and credentials — ALWAYS exclude these
+.env
+*.key
+*.pem
+secrets.yml
+config/credentials*
+
+# Build artifacts
+node_modules/
+pycache/
+*.pyc
+dist/
+build/
+
+# Large binary files (attach separately if needed)
+*.iso
+*.bin
+*.img
+

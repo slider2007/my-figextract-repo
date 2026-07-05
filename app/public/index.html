@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FigExtract — Figma Image Extractor</title>
+  <title>FigExtract v0.06 — Figma Image Extractor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -72,7 +72,7 @@
   <main class="container">
     <section class="hero">
       <span class="eyebrow">Slonobassik Future Technologies</span>
-      <h1>FigExtract</h1>
+      <h1>FigExtract <span style="font-size:clamp(16px,2vw,24px);color:#1A1A1A;-webkit-text-stroke:0;font-weight:700;vertical-align:middle;opacity:.7">v0.06</span></h1>
       <p class="lead">Извлечение изображений из Figma-проекта через API token и публичную ссылку. Этот дистрибутив рассчитан на развёртывание на VPS под Debian 12 без Docker: Node.js-приложение, systemd unit и reverse proxy через Nginx.</p>
     </section>
 
@@ -106,6 +106,13 @@
       <div><h2>Результаты</h2><p id="summaryText">Пока данных нет</p></div>
       <button class="btn btn-zip" id="zipBtn" style="display:none" disabled>⬇ Скачать все как ZIP</button>
     </section>
+
+    <!-- Shown when ZIP is ready but user was away — requires manual tap -->
+    <div id="zipReadyBanner" style="display:none;margin-bottom:24px;">
+      <a id="zipReadyLink" href="#" class="btn btn-zip" style="width:100%;font-size:18px;padding:20px;border-radius:16px;box-shadow:6px 6px 0 #1A1A1A;justify-content:center;">
+        ⬇ ZIP готов — нажмите для скачивания
+      </a>
+    </div>
     <section class="results" id="results">
       <div class="empty">После запуска здесь появятся экспортируемые изображения.</div>
     </section>
@@ -117,6 +124,8 @@
     const ZIP_BYTES_PER_IMAGE = { 1: 60000, 2: 150000, 3: 350000 };
     const POLL_INTERVAL = 3000; // ms between status polls
 
+    const zipReadyBanner = document.getElementById('zipReadyBanner');
+    const zipReadyLink   = document.getElementById('zipReadyLink');
     const runBtn       = document.getElementById('runBtn');
     const clearBtn     = document.getElementById('clearBtn');
     const zipBtn       = document.getElementById('zipBtn');
@@ -140,6 +149,48 @@
     let startedAt    = 0;
     let totalSec     = 0;
     let activeJobId  = null;
+
+    // ── Job persistence across page reloads / tab switches ────────────────────
+    const JOB_KEY = 'figextract_active_job';
+
+    function saveJob(jobId, type, scaleVal) {
+      localStorage.setItem(JOB_KEY, JSON.stringify({ jobId, type, scaleVal, savedAt: Date.now() }));
+    }
+
+    function clearSavedJob() {
+      localStorage.removeItem(JOB_KEY);
+    }
+
+    function showZipReady(jobId) {
+      zipReadyLink.href = `/api/job/${jobId}/download`;
+      zipReadyBanner.style.display = 'block';
+      zipReadyLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Disable after first tap so it cannot be pressed twice accidentally
+      zipReadyLink.addEventListener('click', () => {
+        setTimeout(() => {
+          zipReadyLink.style.pointerEvents = 'none';
+          zipReadyLink.disabled = true;
+          zipReadyLink.textContent = '✓ Скачивание началось';
+          zipReadyLink.style.opacity = '0.6';
+        }, 300);
+      }, { once: true });
+    }
+
+    function hideZipReady() {
+      zipReadyBanner.style.display = 'none';
+      zipReadyLink.href = '#';
+    }
+
+    function getSavedJob() {
+      try {
+        const raw = localStorage.getItem(JOB_KEY);
+        if (!raw) return null;
+        const job = JSON.parse(raw);
+        // Discard if older than 2 hours (matches server TTL)
+        if (Date.now() - job.savedAt > 2 * 60 * 60 * 1000) { clearSavedJob(); return null; }
+        return job;
+      } catch { clearSavedJob(); return null; }
+    }
 
     const INPUTS = [figmaUrl, figmaToken, format, scale, pageFilter];
 
@@ -285,6 +336,7 @@
         const data = await r.json();
         if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
         jobId = data.jobId;
+        saveJob(jobId, 'extract', scaleVal);
       } catch (e) {
         resetProgress();
         setStatus(e.message, 'err');
@@ -300,6 +352,7 @@
             const r    = await fetch(`/api/job/${jobId}/result`);
             const data = await r.json();
             cache = data.items || [];
+            clearSavedJob();
             finishProgress('Готово!');
             renderPageFilter(cache);
             renderCards(cache);
@@ -307,12 +360,14 @@
             if (cache.length > 0) { zipBtn.style.display = 'inline-flex'; zipBtn.disabled = false; }
           } catch (e) {
             resetProgress();
+            clearSavedJob();
             setStatus(`Ошибка получения результата: ${e.message}`, 'err');
           }
           unlockUI();
         },
         (err) => {
           resetProgress();
+          clearSavedJob();
           setStatus(err || 'Неизвестная ошибка', 'err');
           results.innerHTML = '<div class="empty">Произошла ошибка во время извлечения.</div>';
           unlockUI();
@@ -350,17 +405,9 @@
 
       startPolling(jobId,
         async (job) => {
-          try {
-            // Direct navigation triggers the browser's native download
-            // dialog — works reliably on mobile Chrome without requiring
-            // a user-gesture-initiated blob URL.
-            finishProgress('ZIP готов!');
-            setStatus(`ZIP готов — скачивание начнётся автоматически.`, 'ok');
-            window.location.href = `/api/job/${jobId}/download`;
-          } catch (e) {
-            resetProgress();
-            setStatus(`Ошибка скачивания ZIP: ${e.message}`, 'err');
-          }
+          finishProgress('ZIP готов!');
+          setStatus('ZIP готов — нажмите кнопку ниже для скачивания.', 'ok');
+          showZipReady(jobId);
           unlockUI();
           zipBtn.disabled = false;
         },
@@ -376,6 +423,8 @@
     // ── Clear ─────────────────────────────────────────────────────────────────
     clearBtn.addEventListener('click', () => {
       stopPolling();
+      clearSavedJob();
+      hideZipReady();
       figmaUrl.value = ''; figmaToken.value = '';
       format.value = 'png'; scale.value = '2';
       pageFilter.innerHTML = '<option value="">Все страницы</option>';
@@ -385,6 +434,66 @@
       clearStatus(); resetProgress();
       unlockUI(); zipBtn.disabled = true;
     });
+    // ── Auto-reconnect on page load ──────────────────────────────────────────
+    (function reconnectOnLoad() {
+      const saved = getSavedJob();
+      if (!saved) return;
+
+      const { jobId, type, scaleVal } = saved;
+      const expectSec = SCALE_DURATION[scaleVal] || 960;
+
+      // Restore UI state
+      lockUI();
+      showProgress(
+        type === 'zip'
+          ? 'Восстановление ZIP задачи…'
+          : `Восстановление задачи извлечения (${scaleVal}x)…`,
+        expectSec
+      );
+      setStatus('Обнаружена активная задача — подключение…', 'info');
+
+      // Poll immediately to get current status
+      startPolling(jobId,
+        async (job) => {
+          if (type === 'extract') {
+            try {
+              const r    = await fetch(`/api/job/${jobId}/result`);
+              const data = await r.json();
+              cache = data.items || [];
+              clearSavedJob();
+              finishProgress('Готово!');
+              renderPageFilter(cache);
+              renderCards(cache);
+              setStatus(job.message, 'ok');
+              if (cache.length > 0) { zipBtn.style.display = 'inline-flex'; zipBtn.disabled = false; }
+            } catch (e) {
+              clearSavedJob();
+              resetProgress();
+              setStatus(`Ошибка восстановления: ${e.message}`, 'err');
+            }
+          } else {
+            // ZIP job done — trigger download
+            clearSavedJob();
+            finishProgress('ZIP готов!');
+            setStatus('ZIP готов — нажмите кнопку ниже для скачивания.', 'ok');
+            showZipReady(jobId);
+          }
+          unlockUI();
+        },
+        (err) => {
+          clearSavedJob();
+          resetProgress();
+          // Job expired or errored — ask user to start over
+          setStatus(
+            err && err.includes('not found')
+              ? 'Предыдущая задача истекла (более 2 часов). Пожалуйста, запустите извлечение заново.'
+              : (err || 'Предыдущая задача завершилась с ошибкой.'),
+            'err'
+          );
+          unlockUI();
+        }
+      );
+    })();
   </script>
 </body>
 </html>

@@ -7,34 +7,384 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>body{margin:0;font-family:Inter,system-ui,sans-serif;color:#eef2f7;background:linear-gradient(180deg,#0b0e13,#10151d 45%,#0b0f15)}*{box-sizing:border-box}.container{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:36px 0 64px}.hero{display:grid;gap:10px;margin-bottom:26px}.eyebrow{display:inline-flex;width:fit-content;padding:8px 12px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(255,255,255,.09);border-radius:999px;background:rgba(255,255,255,.04);color:#c8b7ff}h1{margin:0;font-size:clamp(34px,5vw,58px);line-height:1}.lead{margin:0;color:#9aa5b5;max-width:72ch;font-size:17px;line-height:1.7}.panel{background:rgba(19,25,35,.92);border:1px solid rgba(255,255,255,.09);border-radius:18px;box-shadow:0 18px 45px rgba(0,0,0,.28);backdrop-filter:blur(10px)}.form{padding:22px;display:grid;gap:18px}.grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:16px}.field.full{grid-column:1 / -1}label{display:block;margin-bottom:8px;font-size:13px;font-weight:700;color:#9aa5b5}input,select,button{font:inherit}input,select{width:100%;border:1px solid rgba(255,255,255,.09);border-radius:14px;background:#19212d;color:#eef2f7;padding:14px 15px;outline:none}input::placeholder{color:#718096}input:focus,select:focus{border-color:rgba(139,92,246,.9);box-shadow:0 0 0 3px rgba(139,92,246,.18)}.actions{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.note{color:#9aa5b5;font-size:13px;line-height:1.6}.buttons{display:flex;gap:12px;flex-wrap:wrap}.btn{border:0;cursor:pointer;border-radius:14px;padding:14px 18px;font-weight:700;transition:transform .18s ease,opacity .18s ease,background .18s ease;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.btn:hover{transform:translateY(-1px)}.btn:disabled{opacity:.6;cursor:wait;transform:none}.btn-primary{color:white;background:linear-gradient(135deg,#8b5cf6,#6d28d9)}.btn-secondary{color:#eef2f7;background:#19212d;border:1px solid rgba(255,255,255,.09)}.status{display:none;padding:14px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);font-size:14px}.status.show{display:block}.status.info{color:#ddd6fe;border-color:rgba(139,92,246,.28)}.status.ok{color:#bbf7d0;border-color:rgba(34,197,94,.28)}.status.err{color:#fecaca;border-color:rgba(239,68,68,.28)}.summary{margin:24px 0 16px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.summary h2{margin:0;font-size:22px}.summary p{margin:0;color:#9aa5b5}.results{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}.card{overflow:hidden;background:rgba(19,25,35,.95);border:1px solid rgba(255,255,255,.09);border-radius:18px}.thumb{background:#0b1017;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;overflow:hidden}.thumb img{width:100%;height:100%;object-fit:contain;display:block}.content{padding:14px;display:grid;gap:10px}.name{font-weight:700;font-size:15px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.tags{display:flex;gap:8px;flex-wrap:wrap}.tag{border:1px solid rgba(255,255,255,.09);background:#19212d;color:#9aa5b5;padding:5px 8px;border-radius:999px;font-size:12px}.card-actions{display:flex;gap:10px}.card-actions a{flex:1}.empty{border:1px dashed rgba(255,255,255,.09);border-radius:18px;background:rgba(255,255,255,.03);color:#9aa5b5;text-align:center;padding:28px}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}@media (max-width:860px){.grid{grid-template-columns:1fr}}</style>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,system-ui,sans-serif;background:#FFE800;color:#1A1A1A;min-height:100vh}
+    .container{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:36px 0 64px}
+    .hero{display:grid;gap:10px;margin-bottom:26px}
+    .eyebrow{display:inline-flex;width:fit-content;padding:8px 14px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:2px solid #1A1A1A;border-radius:999px;background:#FFE800;color:#1A1A1A}
+    h1{font-size:clamp(34px,5vw,58px);line-height:1;color:#3D9AD1;-webkit-text-stroke:1px #1A1A1A;paint-order:stroke fill}
+    .lead{color:#1A1A1A;max-width:72ch;font-size:17px;line-height:1.7;opacity:.8}
+    .panel{background:#fff;border:2px solid #1A1A1A;border-radius:18px;box-shadow:6px 6px 0 #1A1A1A}
+    .form{padding:24px;display:grid;gap:18px}
+    .grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:16px}
+    .field.full{grid-column:1 / -1}
+    label{display:block;margin-bottom:8px;font-size:13px;font-weight:700;color:#1A1A1A}
+    input,select,button{font:inherit}
+    input,select{width:100%;border:2px solid #1A1A1A;border-radius:12px;background:#FFFDE7;color:#1A1A1A;padding:13px 15px;outline:none}
+    input:disabled,select:disabled{background:#E3F2FD;border-color:#3D9AD1;color:#3D9AD1;cursor:not-allowed;opacity:.8}
+    input::placeholder{color:#9E9E9E}
+    input:focus,select:focus{border-color:#3D9AD1;box-shadow:0 0 0 3px rgba(61,154,209,.2)}
+    .actions{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+    .note{color:#555;font-size:13px;line-height:1.6;max-width:52ch}
+    .buttons{display:flex;gap:12px;flex-wrap:wrap}
+    .btn{border:2px solid #1A1A1A;cursor:pointer;border-radius:12px;padding:13px 20px;font-weight:700;font-size:14px;transition:transform .15s,box-shadow .15s,background .15s,color .15s;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;box-shadow:3px 3px 0 #1A1A1A}
+    .btn:not(:disabled):hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 #1A1A1A}
+    .btn:not(:disabled):active{transform:translate(1px,1px);box-shadow:1px 1px 0 #1A1A1A}
+    .btn:disabled{background:#3D9AD1 !important;color:#FFE800 !important;border-color:#1A1A1A;cursor:not-allowed;transform:none;box-shadow:3px 3px 0 #1A1A1A;opacity:1}
+    .btn-primary{color:#1A1A1A;background:#FFE800}
+    .btn-secondary{color:#1A1A1A;background:#fff}
+    .btn-zip{color:#fff;background:#3D9AD1}
+    .progress-wrap{display:none;flex-direction:column;gap:8px;padding:4px 0}
+    .progress-wrap.show{display:flex}
+    .progress-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+    .progress-label{font-size:13px;font-weight:600;color:#1A1A1A}
+    .progress-eta{font-size:12px;color:#3D9AD1;font-weight:700;white-space:nowrap}
+    .progress-track{height:16px;background:#FFFDE7;border:2px solid #1A1A1A;border-radius:99px;overflow:hidden}
+    .progress-bar{height:100%;background:linear-gradient(90deg,#3D9AD1 0%,#FFE800 100%);border-radius:99px;width:0%;transition:width .6s ease;position:relative;overflow:hidden}
+    .progress-bar::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:rgba(255,255,255,.3);animation:shimmer 1.6s infinite linear;border-radius:99px}
+    @keyframes shimmer{0%{left:-50%}100%{left:150%}}
+    .progress-pct{font-size:12px;color:#555;text-align:right;font-weight:600}
+    .status{display:none;margin-top:4px;padding:14px 16px;border-radius:12px;font-size:14px;font-weight:500;border:2px solid transparent}
+    .status.show{display:block}
+    .status.info{background:#E3F2FD;border-color:#3D9AD1;color:#1A1A1A}
+    .status.ok{background:#E8F5E9;border-color:#388E3C;color:#1B5E20}
+    .status.err{background:#FFEBEE;border-color:#E8336A;color:#B71C1C}
+    .summary{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:28px 0 16px}
+    h2{font-size:22px;color:#1A1A1A}
+    #summaryText{color:#555;font-size:14px;margin-top:4px}
+    .results{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;padding-bottom:32px}
+    .empty{grid-column:1/-1;padding:48px;text-align:center;color:#555;border:2px dashed #1A1A1A;border-radius:16px;background:#fff}
+    .card{background:#fff;border:2px solid #1A1A1A;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:4px 4px 0 #1A1A1A;transition:transform .15s,box-shadow .15s}
+    .card:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #1A1A1A}
+    .thumb{aspect-ratio:4/3;overflow:hidden;background:#FFFDE7;border-bottom:2px solid #1A1A1A}
+    .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .content{padding:14px;display:flex;flex-direction:column;gap:10px;flex:1}
+    .name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#1A1A1A}
+    .tags{display:flex;gap:6px;flex-wrap:wrap}
+    .tag{font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid #1A1A1A;background:#FFE800;color:#1A1A1A;font-weight:600}
+    .tag.mono{font-family:monospace;background:#E3F2FD;border-color:#3D9AD1}
+    .card-actions{display:flex;gap:8px;margin-top:auto}
+    .card-actions .btn{flex:1;padding:10px 8px;font-size:13px;border-radius:10px}
+  </style>
 </head>
 <body>
   <main class="container">
     <section class="hero">
-      <span class="eyebrow">Debian-ready distribution</span>
+      <span class="eyebrow">Slonobassik Future Technologies</span>
       <h1>FigExtract</h1>
       <p class="lead">Извлечение изображений из Figma-проекта через API token и публичную ссылку. Этот дистрибутив рассчитан на развёртывание на VPS под Debian 12 без Docker: Node.js-приложение, systemd unit и reverse proxy через Nginx.</p>
     </section>
+
     <section class="panel form">
       <div class="grid">
         <div class="field full"><label for="figmaUrl">Публичная ссылка на Figma или file key</label><input id="figmaUrl" type="text" placeholder="https://www.figma.com/design/FILE_KEY/..."></div>
         <div class="field full"><label for="figmaToken">Figma Personal Access Token</label><input id="figmaToken" type="password" placeholder="figd_..."></div>
         <div class="field"><label for="format">Формат</label><select id="format"><option value="png">PNG</option><option value="jpg">JPG</option><option value="svg">SVG</option><option value="pdf">PDF</option></select></div>
-        <div class="field"><label for="scale">Scale</label><select id="scale"><option value="1">1x</option><option value="2" selected>2x</option><option value="3">3x</option><option value="4">4x</option></select></div>
+        <div class="field"><label for="scale">Scale</label><select id="scale"><option value="1">1x</option><option value="2" selected>2x</option><option value="3">3x</option></select></div>
         <div class="field"><label for="pageFilter">Фильтр по странице</label><select id="pageFilter"><option value="">Все страницы</option></select></div>
       </div>
       <div class="actions">
         <p class="note">Токен отправляется только на ваш сервер FigExtract. Сервер уже обращается к Figma API и не раскрывает токен в браузерных запросах к внешнему домену.</p>
-        <div class="buttons"><button class="btn btn-primary" id="runBtn">Извлечь изображения</button><button class="btn btn-secondary" id="clearBtn" type="button">Очистить</button></div>
+        <div class="buttons">
+          <button class="btn btn-primary" id="runBtn">Извлечь изображения</button>
+          <button class="btn btn-secondary" id="clearBtn" type="button">Очистить</button>
+        </div>
+      </div>
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-row">
+          <span class="progress-label" id="progressText">Подготовка…</span>
+          <span class="progress-eta" id="progressEta"></span>
+        </div>
+        <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-pct" id="progressPct">0%</div>
       </div>
       <div class="status" id="status"></div>
     </section>
-    <section class="summary"><div><h2>Результаты</h2><p id="summaryText">Пока данных нет</p></div></section>
-    <section class="results" id="results"><div class="empty">После запуска здесь появятся экспортируемые изображения.</div></section>
+
+    <section class="summary">
+      <div><h2>Результаты</h2><p id="summaryText">Пока данных нет</p></div>
+      <button class="btn btn-zip" id="zipBtn" style="display:none" disabled>⬇ Скачать все как ZIP</button>
+    </section>
+    <section class="results" id="results">
+      <div class="empty">После запуска здесь появятся экспортируемые изображения.</div>
+    </section>
   </main>
+
   <script>
-    const runBtn=document.getElementById('runBtn'),clearBtn=document.getElementById('clearBtn'),figmaUrl=document.getElementById('figmaUrl'),figmaToken=document.getElementById('figmaToken'),format=document.getElementById('format'),scale=document.getElementById('scale'),pageFilter=document.getElementById('pageFilter'),statusBox=document.getElementById('status'),results=document.getElementById('results'),summaryText=document.getElementById('summaryText');let cache=[];function setStatus(message,type='info'){statusBox.className=`status show ${type}`;statusBox.textContent=message}function clearStatus(){statusBox.className='status';statusBox.textContent=''}function escapeHtml(value=''){return value.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;')}function renderPageFilter(items){const pages=[...new Set(items.map(item=>item.page).filter(Boolean))].sort((a,b)=>a.localeCompare(b));pageFilter.innerHTML='<option value="">Все страницы</option>'+pages.map(page=>`<option value="${escapeHtml(page)}">${escapeHtml(page)}</option>`).join('')}function renderCards(items){if(!items.length){results.innerHTML='<div class="empty">Ничего не найдено для выбранного фильтра.</div>';summaryText.textContent='0 изображений';return}results.innerHTML=items.map(item=>`<article class="card"><div class="thumb"><img src="${item.url}" alt="${escapeHtml(item.name)}" loading="lazy"></div><div class="content"><div class="name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div><div class="tags"><span class="tag">${escapeHtml(item.type)}</span><span class="tag">${escapeHtml(item.page||'Unknown')}</span><span class="tag mono">${escapeHtml(item.id)}</span></div><div class="card-actions"><a class="btn btn-secondary" href="${item.url}" target="_blank" rel="noopener noreferrer">Открыть</a><a class="btn btn-primary" href="${item.url}" target="_blank" rel="noopener noreferrer" download>Скачать</a></div></div></article>`).join('');summaryText.textContent=`${items.length} изображений`}function applyFilter(){const value=pageFilter.value;const filtered=value?cache.filter(item=>item.page===value):cache;renderCards(filtered)}pageFilter.addEventListener('change',applyFilter);runBtn.addEventListener('click',async()=>{const url=figmaUrl.value.trim(),token=figmaToken.value.trim();if(!url){setStatus('Укажите публичную ссылку Figma или file key.','err');return}if(!token){setStatus('Укажите Figma token.','err');return}runBtn.disabled=true;clearStatus();results.innerHTML='<div class="empty">Идёт обработка...</div>';summaryText.textContent='Загрузка...';cache=[];try{setStatus('Чтение структуры файла и экспорт изображений...','info');const response=await fetch('/api/extract',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url,token,format:format.value,scale:Number(scale.value)})});const raw=await response.text();let data={};try{data=raw?JSON.parse(raw):{}}catch(_){data={error:raw'Request failed'}}if(!response.ok)throw new Error(data.errorRequest failed (${response.status}));cache=data.items||[];renderPageFilter(cache);applyFilter();setStatus(`Готово. Обработано ${data.totalNodes} нод, получено ${data.totalImages} изображений.`,'ok')}catch(error){results.innerHTML='<div class="empty">Произошла ошибка во время извлечения.</div>';summaryText.textContent='Ошибка';setStatus(error.message||'Неизвестная ошибка','err')}finally{runBtn.disabled=false}});clearBtn.addEventListener('click',()=>{figmaUrl.value='';figmaToken.value='';format.value='png';scale.value='2';pageFilter.innerHTML='<option value="">Все страницы</option>';cache=[];results.innerHTML='<div class="empty">После запуска здесь появятся экспортируемые изображения.</div>';summaryText.textContent='Пока данных нет';clearStatus()});
+    // Real measured timings (seconds) per scale
+    const SCALE_DURATION = { 1: 540, 2: 960, 3: 1500 };
+    const ZIP_BYTES_PER_IMAGE = { 1: 60000, 2: 150000, 3: 350000 };
+    const POLL_INTERVAL = 3000; // ms between status polls
+
+    const runBtn       = document.getElementById('runBtn');
+    const clearBtn     = document.getElementById('clearBtn');
+    const zipBtn       = document.getElementById('zipBtn');
+    const figmaUrl     = document.getElementById('figmaUrl');
+    const figmaToken   = document.getElementById('figmaToken');
+    const format       = document.getElementById('format');
+    const scale        = document.getElementById('scale');
+    const pageFilter   = document.getElementById('pageFilter');
+    const statusBox    = document.getElementById('status');
+    const results      = document.getElementById('results');
+    const summaryText  = document.getElementById('summaryText');
+    const progressWrap = document.getElementById('progressWrap');
+    const progressBar  = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const progressEta  = document.getElementById('progressEta');
+    const progressPct  = document.getElementById('progressPct');
+
+    let cache        = [];
+    let pollTimer    = null;
+    let etaTimer     = null;
+    let startedAt    = 0;
+    let totalSec     = 0;
+    let activeJobId  = null;
+
+    const INPUTS = [figmaUrl, figmaToken, format, scale, pageFilter];
+
+    function lockUI()   { INPUTS.forEach(el => el.disabled = true);  runBtn.disabled = true; clearBtn.disabled = true; zipBtn.disabled = true; }
+    function unlockUI() { INPUTS.forEach(el => el.disabled = false); runBtn.disabled = false; clearBtn.disabled = false; }
+
+    function setStatus(msg, type = 'info') { statusBox.className = `status show ${type}`; statusBox.textContent = msg; }
+    function clearStatus() { statusBox.className = 'status'; statusBox.textContent = ''; }
+    function escapeHtml(v = '') { return v.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;'); }
+
+    function fmtTime(sec) {
+      if (sec <= 0) return 'завершение…';
+      if (sec < 60) return `~${Math.ceil(sec)} сек.`;
+      const m = Math.floor(sec / 60), s = Math.ceil(sec % 60);
+      return s > 0 ? `~${m} мин. ${s} сек.` : `~${m} мин.`;
+    }
+    function fmtBytes(b) {
+      if (b < 1048576) return `${(b/1024).toFixed(0)} KB`;
+      return `${(b/1048576).toFixed(1)} MB`;
+    }
+
+    // ── Progress ──────────────────────────────────────────────────────────────
+    function showProgress(label, durationSec) {
+      totalSec  = durationSec;
+      startedAt = Date.now();
+      progressWrap.classList.add('show');
+      progressText.textContent = label;
+      progressEta.textContent  = 'прошло: 0 сек.';
+      progressPct.textContent  = '0%';
+      progressBar.style.width  = '0%';
+      clearInterval(etaTimer);
+      etaTimer = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+        const m = Math.floor(elapsed / 60), s = elapsed % 60;
+        progressEta.textContent = m > 0
+          ? `прошло: ${m} мин. ${s} сек.`
+          : `прошло: ${s} сек.`;
+      }, 1000);
+    }
+
+    function setProgressFromJob(job) {
+      // Use server-reported progress (0-100) for the bar
+      progressBar.style.width = job.progress + '%';
+      progressPct.textContent = job.progress + '%';
+      if (job.message) progressText.textContent = job.message;
+    }
+
+    function finishProgress(label) {
+      clearInterval(etaTimer);
+      progressBar.style.width = '100%';
+      progressPct.textContent = '100%';
+      progressEta.textContent = '';
+      if (label) progressText.textContent = label;
+      setTimeout(() => { progressWrap.classList.remove('show'); progressBar.style.width = '0%'; }, 2000);
+    }
+
+    function resetProgress() {
+      clearInterval(etaTimer);
+      progressWrap.classList.remove('show');
+      progressBar.style.width = '0%';
+      progressEta.textContent = '';
+    }
+
+    // ── Polling ───────────────────────────────────────────────────────────────
+    function stopPolling() { clearInterval(pollTimer); pollTimer = null; }
+
+    function startPolling(jobId, onDone, onError) {
+      stopPolling();
+      activeJobId = jobId;
+      pollTimer = setInterval(async () => {
+        // Guard: if the page was hidden (phone locked) we just resume polling
+        // when the page becomes visible again — no action needed here.
+        try {
+          const r   = await fetch(`/api/job/${jobId}`);
+          const job = await r.json();
+          if (!r.ok) { stopPolling(); onError(job.error || 'Poll error'); return; }
+
+          setProgressFromJob(job);
+
+          if (job.status === 'done')  { stopPolling(); onDone(job);         return; }
+          if (job.status === 'error') { stopPolling(); onError(job.error);  return; }
+        } catch (e) {
+          // Network blip (e.g. phone locked briefly) — just keep polling
+          console.warn('[poll] network error, will retry:', e.message);
+        }
+      }, POLL_INTERVAL);
+    }
+
+    // ── Render ────────────────────────────────────────────────────────────────
+    function renderPageFilter(items) {
+      const pages = [...new Set(items.map(i => i.page).filter(Boolean))].sort((a,b) => a.localeCompare(b));
+      pageFilter.innerHTML = '<option value="">Все страницы</option>' +
+        pages.map(p => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join('');
+    }
+
+    function renderCards(items) {
+      if (!items.length) {
+        results.innerHTML = '<div class="empty">Ничего не найдено для выбранного фильтра.</div>';
+        summaryText.textContent = '0 изображений';
+        return;
+      }
+      results.innerHTML = items.map(item => `
+        <article class="card">
+          <div class="thumb"><img src="${item.url}" alt="${escapeHtml(item.name)}" loading="lazy"></div>
+          <div class="content">
+            <div class="name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div>
+            <div class="tags">
+              <span class="tag">${escapeHtml(item.type)}</span>
+              <span class="tag">${escapeHtml(item.page||'Unknown')}</span>
+              <span class="tag mono">${escapeHtml(item.id)}</span>
+            </div>
+            <div class="card-actions">
+              <a class="btn btn-secondary" href="${item.url}" target="_blank" rel="noopener noreferrer">Открыть</a>
+              <a class="btn btn-primary"   href="${item.url}" target="_blank" rel="noopener noreferrer" download>Скачать</a>
+            </div>
+          </div>
+        </article>`).join('');
+      summaryText.textContent = `${items.length} изображений`;
+    }
+
+    pageFilter.addEventListener('change', () => {
+      const page = pageFilter.value;
+      renderCards(page ? cache.filter(i => i.page === page) : cache);
+    });
+
+    // ── Extract ───────────────────────────────────────────────────────────────
+    runBtn.addEventListener('click', async () => {
+      const url   = figmaUrl.value.trim();
+      const token = figmaToken.value.trim();
+      if (!url || !token) { setStatus('Укажите ссылку на Figma и токен.', 'err'); return; }
+
+      const scaleVal  = Number(scale.value) || 2;
+      const expectSec = SCALE_DURATION[scaleVal] || 960;
+
+      lockUI();
+      cache = [];
+      clearStatus();
+      showProgress(`Извлечение изображений (${scaleVal}x)…`, expectSec);
+
+      let jobId;
+      try {
+        const r    = await fetch('/api/extract', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url, token, format: format.value, scale: scaleVal }) });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
+        jobId = data.jobId;
+      } catch (e) {
+        resetProgress();
+        setStatus(e.message, 'err');
+        unlockUI();
+        return;
+      }
+
+      // Poll until done — survives phone lock/unlock
+      startPolling(jobId,
+        async (job) => {
+          // Fetch the actual result
+          try {
+            const r    = await fetch(`/api/job/${jobId}/result`);
+            const data = await r.json();
+            cache = data.items || [];
+            finishProgress('Готово!');
+            renderPageFilter(cache);
+            renderCards(cache);
+            setStatus(job.message, 'ok');
+            if (cache.length > 0) { zipBtn.style.display = 'inline-flex'; zipBtn.disabled = false; }
+          } catch (e) {
+            resetProgress();
+            setStatus(`Ошибка получения результата: ${e.message}`, 'err');
+          }
+          unlockUI();
+        },
+        (err) => {
+          resetProgress();
+          setStatus(err || 'Неизвестная ошибка', 'err');
+          results.innerHTML = '<div class="empty">Произошла ошибка во время извлечения.</div>';
+          unlockUI();
+        }
+      );
+    });
+
+    // ── ZIP ───────────────────────────────────────────────────────────────────
+    zipBtn.addEventListener('click', async () => {
+      const page  = pageFilter.value;
+      const items = page ? cache.filter(i => i.page === page) : cache;
+      if (!items.length) { setStatus('Нет изображений для скачивания.', 'err'); return; }
+
+      const scaleVal    = Number(scale.value) || 2;
+      const estBytes    = items.length * (ZIP_BYTES_PER_IMAGE[scaleVal] || 150000);
+      const zipSec      = Math.max(60, estBytes / (1024 * 1024));
+
+      lockUI();
+      showProgress(`Скачивание и упаковка ${items.length} изображений (~${fmtBytes(estBytes)})…`, zipSec);
+      setStatus(`Упаковка ${items.length} изображений в ZIP (~${fmtBytes(estBytes)})…`, 'info');
+
+      let jobId;
+      try {
+        const r    = await fetch('/api/download-zip', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ items, format: format.value }) });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
+        jobId = data.jobId;
+      } catch (e) {
+        resetProgress();
+        setStatus(`Ошибка запуска ZIP: ${e.message}`, 'err');
+        unlockUI();
+        zipBtn.disabled = false;
+        return;
+      }
+
+      startPolling(jobId,
+        async (job) => {
+          try {
+            // Direct navigation triggers the browser's native download
+            // dialog — works reliably on mobile Chrome without requiring
+            // a user-gesture-initiated blob URL.
+            finishProgress('ZIP готов!');
+            setStatus(`ZIP готов — скачивание начнётся автоматически.`, 'ok');
+            window.location.href = `/api/job/${jobId}/download`;
+          } catch (e) {
+            resetProgress();
+            setStatus(`Ошибка скачивания ZIP: ${e.message}`, 'err');
+          }
+          unlockUI();
+          zipBtn.disabled = false;
+        },
+        (err) => {
+          resetProgress();
+          setStatus(`Ошибка ZIP: ${err || 'Неизвестная ошибка'}`, 'err');
+          unlockUI();
+          zipBtn.disabled = false;
+        }
+      );
+    });
+
+    // ── Clear ─────────────────────────────────────────────────────────────────
+    clearBtn.addEventListener('click', () => {
+      stopPolling();
+      figmaUrl.value = ''; figmaToken.value = '';
+      format.value = 'png'; scale.value = '2';
+      pageFilter.innerHTML = '<option value="">Все страницы</option>';
+      results.innerHTML = '<div class="empty">После запуска здесь появятся экспортируемые изображения.</div>';
+      summaryText.textContent = 'Пока данных нет';
+      cache = []; zipBtn.style.display = 'none';
+      clearStatus(); resetProgress();
+      unlockUI(); zipBtn.disabled = true;
+    });
   </script>
 </body>
 </html>

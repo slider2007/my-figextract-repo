@@ -1,0 +1,2 @@
+PR archive folder. Each merged PR gets its own subfolder with changed files + description.txt
+Naming convention: output_data/<meaningful_pr_name>/
